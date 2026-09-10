@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>CPI Pulse</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="popup-container">
+    <div class="popup-header">
+      <div class="header-left">
+        <div class="pulse-icon">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+          </svg>
+        </div>
+        <span class="popup-title">CPI Pulse</span>
+      </div>
+      <span class="badge-live">Live</span>
+    </div>
+
+    <div class="summary-kpis">
+      <div class="kpi-mini">
+        <span class="kpi-val green">169</span>
+        <span class="kpi-lbl">Running</span>
+      </div>
+      <div class="kpi-mini">
+        <span class="kpi-val red">9</span>
+        <span class="kpi-lbl">Errors</span>
+      </div>
+      <div class="kpi-mini">
+        <span class="kpi-val">380ms</span>
+        <span class="kpi-lbl">Avg Latency</span>
+      </div>
+    </div>
+
+    <div class="popup-actions">
+      <button class="btn-open-dashboard" id="btnOpenDashboard">
+        Open Full Cockpit
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+          <polyline points="15 3 21 3 21 9"/>
+          <line x1="10" y1="14" x2="21" y2="3"/>
+        </svg>
+      </button>
+    </div>
+
+    <div class="popup-footer">
+      <span>SAP Cloud Integration</span>
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

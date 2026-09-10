@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CPI Pulse - Integrations & Operations Cockpit</title>
+  <link rel="stylesheet" href="dashboard.css">
+  <link rel="icon" type="image/png" href="../icons/icon48.png">
+</head>
+<body>
+  <!-- Top Shell Bar -->
+  <header class="sap-shellbar">
+    <div class="sap-shellbar-left">
+      <div class="sap-logo-badge">
+        <span class="sap-logo-text">SAP</span>
+      </div>
+      <div class="sap-shell-title">
+        <span class="suite-name">Integration Suite</span>
+        <span class="pulse-brand-pill">CPI Pulse</span>
+      </div>
+    </div>
+
+    <div class="sap-shellbar-right">
+      <!-- Tenant indicator -->
+      <div class="sap-tenant-badge" id="tenantBadge" title="Click to change or test CPI Tenant URL">
+        <span class="sap-status-dot green" id="tenantStatusDot"></span>
+        <span id="tenantName">Detecting Tenant...</span>
+      </div>
+
+      <!-- Refresh & Auto-Sync Controls (Part 2: 15s, 30s, 1m, 5m) -->
+      <div class="sap-refresh-group">
+        <button class="sap-shell-btn" id="btnRefresh" title="Refresh Live CPI Data Now">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M23 4v6h-6"></path>
+            <path d="M1 20v-6h6"></path>
+            <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+          </svg>
+        </button>
+        <select id="autoSyncSelect" class="sap-select-compact autosync-select" title="Automatic live data synchronization interval">
+          <option value="0">Auto: Off</option>
+          <option value="15">Auto: 15s</option>
+          <option value="30">Auto: 30s</option>
+          <option value="60">Auto: 1m</option>
+          <option value="300">Auto: 5m</option>
+        </select>
+      </div>
+
+      <!-- User Avatar with Initials & Profile Details Popover (Part 3: Prem Sai Daggolu -> PD) -->
+      <div class="sap-avatar-wrapper">
+        <div class="sap-user-avatar clickable" id="userAvatarBtn" title="User Profile (Prem Sai Daggolu) - Click to view details" role="button" tabindex="0">
+          <span id="userAvatarInitials">PD</span>
+        </div>
+
+        <!-- Profile Details Popover Modal -->
+        <div class="sap-profile-popover" id="profilePopover" style="display: none;">
+          <div class="profile-popover-header">
+            <span class="profile-popover-title">User Account</span>
+            <button type="button" class="profile-popover-close" id="btnCloseProfile" title="Close Profile">&times;</button>
+          </div>
+          <div class="profile-popover-body">
+            <div class="profile-user-summary">
+              <div class="profile-avatar-large" id="profileAvatarLarge">PD</div>
+              <div class="profile-info">
+                <h3 class="profile-name" id="profileDisplayName">Prem Sai Daggolu</h3>
+                <p class="profile-email" id="profileDisplayEmail">prem.sai.daggolu@sap.com</p>
+                <span class="profile-role-pill" id="profileDisplayRole">Integration Developer</span>
+              </div>
+            </div>
+
+            <!-- Profile Manual Edit Form / Placeholders (Item 6) -->
+            <div class="profile-edit-box" id="profileEditBox" style="display: block; margin-top: 14px;">
+              <div class="profile-form-group">
+                <label for="inputProfileName">Full Name:</label>
+                <input type="text" id="inputProfileName" class="sap-input" value="Prem Sai Daggolu" placeholder="Enter full name...">
+              </div>
+              <div class="profile-form-group" style="margin-top: 8px;">
+                <label for="inputProfileEmail">Email Address:</label>
+                <input type="email" id="inputProfileEmail" class="sap-input" value="prem.sai.daggolu@sap.com" placeholder="Enter email address...">
+              </div>
+              <div class="profile-form-group" style="margin-top: 8px;">
+                <label for="inputProfileRole">Role / Title:</label>
+                <input type="text" id="inputProfileRole" class="sap-input" value="Integration Developer" placeholder="Enter role...">
+              </div>
+              <div class="profile-edit-btn-row" style="margin-top: 12px; display: flex; gap: 8px;">
+                <button type="button" class="sap-btn-primary sap-btn-sm" id="btnSaveProfile">Save Profile</button>
+              </div>
+            </div>
+          </div>
+          <div class="profile-popover-footer" style="justify-content: flex-end;">
+            <button type="button" class="sap-btn-secondary sap-btn-sm" id="btnCloseProfileFooter">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Full-Width Cockpit Container -->
+  <main class="sap-main-content">
+    <!-- Page Header & Controls -->
+    <section class="sap-page-header">
+      <div class="sap-breadcrumb">Overview</div>
+      <div class="sap-header-row">
+        <h1 class="sap-page-title">Integration Operations Cockpit</h1>
+        <div class="sap-header-controls">
+          <!-- Timezone Converter Dropdown (Point 5) -->
+          <div class="sap-control-group">
+            <label for="timezoneSelect" title="Convert all message and certificate timestamps to selected timezone">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: -2px; margin-right: 2px;">
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="12 6 12 12 16 14"></polyline>
+              </svg>
+              Timezone:
+            </label>
+            <select id="timezoneSelect" class="sap-select tz-select">
+              <option value="local" selected>Local (Browser)</option>
+              <option value="UTC">UTC (SAP CPI Default)</option>
+              <option value="Asia/Kolkata">IST (UTC+5:30)</option>
+              <option value="Europe/Berlin">CET / CEST (UTC+1/+2)</option>
+              <option value="America/New_York">EST / EDT (UTC-5/-4)</option>
+              <option value="America/Los_Angeles">PST / PDT (UTC-8/-7)</option>
+              <option value="Asia/Singapore">SGT (UTC+8)</option>
+            </select>
+          </div>
+
+          <!-- Time Range Dropdown (Point 2) -->
+          <div class="sap-control-group">
+            <label for="timeRangeSelect">Time Range:</label>
+            <select id="timeRangeSelect" class="sap-select">
+              <option value="1h">Past Hour</option>
+              <option value="24h" selected>Past 24 Hours</option>
+              <option value="7d">Past 7 Days</option>
+              <option value="30d">Past 30 Days</option>
+            </select>
+          </div>
+
+          <!-- Theme Switch (Light / Dark Mode) -->
+          <div class="sap-control-group sap-theme-control">
+            <label id="themeLabel">Theme:</label>
+            <button type="button" id="themeToggleBtn" class="sap-theme-toggle-btn" role="switch" aria-checked="false" aria-labelledby="themeLabel" title="Toggle Light / Dark Mode (SAP Fiori Horizon)">
+              <span class="theme-icon light-icon" aria-hidden="true" title="Light Mode">
+                <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="5"></circle>
+                  <line x1="12" y1="1" x2="12" y2="3"></line>
+                  <line x1="12" y1="21" x2="12" y2="23"></line>
+                  <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                  <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                  <line x1="1" y1="12" x2="3" y2="12"></line>
+                  <line x1="21" y1="12" x2="23" y2="12"></line>
+                  <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                  <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                </svg>
+              </span>
+              <span class="theme-switch-slider"></span>
+              <span class="theme-icon dark-icon" aria-hidden="true" title="Dark Mode">
+                <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                </svg>
+              </span>
+              <span class="theme-text" id="themeText">Light</span>
+            </button>
+          </div>
+
+          <span class="last-sync-tag" id="lastSyncTime">Sync: Live</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 1: 4 Prominent Capability Tiles (Highlighted Sub-names, NO +Add option) -->
+    <section class="sap-section" id="section-capabilities">
+      <div class="sap-section-header">
+        <div>
+          <span class="sap-section-title">Integration Flow Health Status</span>
+          <span class="sap-section-subtitle">Live error messages, deployments, Keystore expiry and JMS Monitor</span>
+        </div>
+        <div class="sap-click-hint">Click any capability tile to view detailed table breakdown below</div>
+      </div>
+
+      <div class="sap-tile-grid">
+        <!-- Capability 1: Integration Overview -->
+        <div class="sap-tile active-tile" data-capability="integration-overview" id="tileIntegrationOverview" title="Click to view all deployed integration flows">
+          <div class="sap-tile-top">
+            <span class="sap-tile-highlight-title">Integration Overview</span>
+            <span class="sap-tile-timeframe">Live Health</span>
+          </div>
+          <div class="sap-tile-kpi neutral" id="kpiIntegrationTotal">--</div>
+          <div class="sap-tile-bottom">
+            <span class="sap-tile-label">Total Deployed</span>
+            <span class="sap-tile-subtext" id="kpiIntegrationBreakdown">Started / Error</span>
+          </div>
+        </div>
+
+        <!-- Capability 2: Message Failures -->
+        <div class="sap-tile" data-capability="error-sentinel" id="tileErrorSentinel" title="Click to view failing interfaces & execution errors">
+          <div class="sap-tile-top">
+            <span class="sap-tile-highlight-title">Message Failures</span>
+            <span class="sap-tile-timeframe">Failed Executions</span>
+          </div>
+          <div class="sap-tile-kpi negative" id="kpiErrorSentinel">--</div>
+          <div class="sap-tile-bottom">
+            <span class="sap-tile-label">Critical Failures</span>
+            <span class="sap-tile-subtext">Needs Attention</span>
+          </div>
+        </div>
+
+        <!-- Capability 3: Keystore Guardian (Point 1: Shows total certs + expiring) -->
+        <div class="sap-tile" data-capability="cert-guardian" id="tileKeystoreGuardian" title="Click to inspect all keystore certificates & validity">
+          <div class="sap-tile-top">
+            <span class="sap-tile-highlight-title">Keystore Guardian</span>
+            <span class="sap-tile-timeframe">Manage Keystore</span>
+          </div>
+          <div class="sap-tile-kpi positive" id="kpiKeystoreGuardian">--</div>
+          <div class="sap-tile-bottom">
+            <span class="sap-tile-label">Keystore Certificates</span>
+            <span class="sap-tile-subtext" id="kpiKeystoreSubtext">0 Expiring</span>
+          </div>
+        </div>
+
+        <!-- Capability 4: JMS Monitor (Point 4: Real message queues) -->
+        <div class="sap-tile" data-capability="jms-monitor" id="tileJmsMonitor" title="Click to view JMS broker queues & depth">
+          <div class="sap-tile-top">
+            <span class="sap-tile-highlight-title">JMS Monitor</span>
+            <span class="sap-tile-timeframe">Message Queues</span>
+          </div>
+          <div class="sap-tile-kpi positive" id="kpiJmsMonitor">--</div>
+          <div class="sap-tile-bottom">
+            <span class="sap-tile-label">Active Queues</span>
+            <span class="sap-tile-subtext">Broker Depth</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Detail Table with Search, Filter Chips, and Sorting -->
+      <div class="sap-detail-card" id="detailCard">
+        <div class="sap-detail-header">
+          <div class="sap-detail-header-left">
+            <span class="sap-detail-title">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              <span id="detailTableTitle">Deployed Integration Artifacts</span>
+              <span class="sap-item-count-badge" id="detailTableCount">0</span>
+            </span>
+          </div>
+
+          <div class="sap-detail-header-right">
+            <!-- Accurate Dynamic API Source Tag (Point 3) -->
+            
+          </div>
+        </div>
+
+        <!-- Toolbar: Filter Chips & Instant Search Filter -->
+        <div class="sap-table-toolbar" id="tableToolbar">
+          <div class="sap-filter-chips" id="filterChipsContainer">
+            <!-- Dynamic filter chips rendered by JS -->
+          </div>
+
+
+          <div class="sap-search-box">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <input type="text" id="tableSearchInput" placeholder="Filter by name..." autocomplete="off">
+            <button type="button" id="btnClearSearch" class="btn-clear-search" title="Clear search">&times;</button>
+          </div>
+        </div>
+
+        <!-- Table Display -->
+        <div class="table-responsive">
+          <table class="sap-table" id="detailTable">
+            <thead id="detailTableHead"></thead>
+            <tbody id="detailTableBody">
+              <tr>
+                <td colspan="6" class="sap-table-loading">Loading live data from SAP CPI tenant...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Table Pagination (Shown when count > 15) -->
+        <div class="sap-table-pagination" id="detailPagination" style="display: none;">
+          <span class="sap-pagination-info" id="detailPageInfo"></span>
+          <div class="sap-pagination-controls">
+            <button type="button" class="sap-pagination-btn" id="btnDetailPrevPage" title="Previous Page">&laquo;&laquo;</button>
+            <span class="sap-pagination-page" id="detailPageNum">1</span>
+            <button type="button" class="sap-pagination-btn" id="btnDetailNextPage" title="Next Page">&raquo;&raquo;</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 2: Performance Analytics & Bottleneck Detection -->
+    <section class="sap-section" id="section-performance-analytics">
+      <div class="sap-section-header perf-section-header">
+        <div>
+          <span class="sap-section-title">Performance Analytics & Bottleneck Detection</span>
+          <span class="sap-section-subtitle">Live message processing durations, throughput, and slowest integration flows</span>
+        </div>
+        <div class="perf-header-controls">
+          <!-- iFlow-wise Filter Dropdown -->
+          <div class="sap-control-group perf-flow-filter-group">
+            <label for="perfFlowFilterSelect" title="Filter all 4 KPI tiles and leaderboard below to a specific integration flow">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: -2px; margin-right: 3px;">
+                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+              </svg>
+              Filter by iFlow:
+            </label>
+            <select id="perfFlowFilterSelect" class="sap-select perf-flow-select" title="Choose a specific iFlow to update all 4 metric cards">
+              <option value="">All Integration Flows (Aggregate)</option>
+            </select>
+            <button type="button" id="btnClearFlowFilter" class="btn-clear-flow-filter" title="Reset filter to All Integration Flows" style="display: none;">&times; Reset</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4 Interactive Performance KPI Cards -->
+      <div class="sap-tile-grid">
+        <!-- Tile 1: Average Runtime -->
+        <div class="sap-tile perf-kpi-tile" data-perf-action="sort-avg" id="tileAvgRuntime" title="Click to sort leaderboard by Average Processing Time">
+          <div class="sap-tile-top">
+            <span class="sap-tile-highlight-title">Average Runtime</span>
+            <span class="sap-tile-timeframe" id="lblAvgTimeframe">Selected Window</span>
+          </div>
+          <div class="sap-tile-kpi small-text neutral" id="kpiAvgRuntime">--</div>
+          <div class="sap-tile-bottom">
+            <span class="sap-tile-label" id="lblAvgScope">Avg Duration</span>
+            <span class="sap-tile-subtext" id="kpiAvgSubtext">Click to sort &darr;</span>
+          </div>
+        </div>
+
+        <!-- Tile 2: Message Volume -->
+        <div class="sap-tile perf-kpi-tile" data-perf-action="sort-volume" id="tileMsgVolume" title="Click to sort leaderboard by Message Volume">
+          <div class="sap-tile-top">
+            <span class="sap-tile-highlight-title">Message Volume</span>
+            <span class="sap-tile-timeframe" id="lblVolTimeframe">Selected Window</span>
+          </div>
+          <div class="sap-tile-kpi small-text neutral" id="kpiVolume">--</div>
+          <div class="sap-tile-bottom">
+            <span class="sap-tile-label" id="lblVolScope">Processed Messages</span>
+            <span class="sap-tile-subtext" id="kpiVolSubtext">Click to sort &darr;</span>
+          </div>
+        </div>
+
+        <!-- Tile 3: Peak Load Window -->
+        <div class="sap-tile perf-kpi-tile" data-perf-action="view-hourly" id="tilePeakHours" title="Click to view 24-Hour Traffic Distribution">
+          <div class="sap-tile-top">
+            <span class="sap-tile-highlight-title">Peak Load Window</span>
+            <span class="sap-tile-timeframe" id="lblPeakTz">Traffic Distribution</span>
+          </div>
+          <div class="sap-tile-kpi small-text critical" id="kpiPeakHours">--</div>
+          <div class="sap-tile-bottom">
+            <span class="sap-tile-label" id="lblPeakScope">Busiest Hour</span>
+            <span class="sap-tile-subtext" id="kpiPeakSubtext">Click for Hourly Chart &nearr;</span>
+          </div>
+        </div>
+
+        <!-- Tile 4: Bottleneck Alerts -->
+        <div class="sap-tile perf-kpi-tile" data-perf-action="filter-bottlenecks" id="tileSlowestAlert" title="Click to filter leaderboard to Bottlenecks Only (&ge; 2.0s)">
+          <div class="sap-tile-top">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span class="sap-tile-highlight-title">Bottlenecks</span>
+              <div class="perf-threshold-pill" title="Customize bottleneck latency threshold (in seconds)" onclick="event.stopPropagation();">
+                <span>&ge;</span>
+                <input type="number" id="inputBottleneckThreshold" min="0.1" max="60" step="0.5" value="2.0" class="threshold-pill-input" aria-label="Bottleneck threshold in seconds">
+                <span>s</span>
+              </div>
+            </div>
+            <span class="sap-tile-timeframe" id="lblSlowTimeframe">Latency &ge; 2.0s</span>
+          </div>
+          <div class="sap-tile-kpi negative" id="kpiSlowCount">--</div>
+          <div class="sap-tile-bottom">
+            <span class="sap-tile-label" id="lblSlowScope">Slowest iFlows</span>
+            <span class="sap-tile-subtext" id="kpiSlowSubtext" style="color: var(--sap-negative); font-weight: 600;">Filter Bottlenecks</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Slowest iFlows Leaderboard with Sorting on Duration Fields (Point 4) -->
+      <div class="sap-detail-card" id="slowestLeaderboardCard">
+        <div class="sap-detail-header">
+          <div class="sap-detail-header-left">
+            <span class="sap-detail-title">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              Slowest iFlows Leaderboard (Bottleneck Analyzer)
+              <span class="sap-item-count-badge" id="slowestCountBadge">0</span>
+            </span>
+          </div>
+
+          <div class="sap-detail-header-right">
+            
+          </div>
+        </div>
+
+        <!-- Performance Table Toolbar -->
+        <div class="sap-table-toolbar">
+          <div class="sap-filter-chips" id="perfFilterChips">
+            <button class="sap-chip active" data-perf-filter="all">All Flows</button>
+            <button class="sap-chip" data-perf-filter="bottlenecks" id="chipBottlenecks">Bottlenecks (&ge; 2.0s)</button>
+            <button class="sap-chip" data-perf-filter="failures">With Failures</button>
+          </div>
+
+          <div class="sap-search-box">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <input type="text" id="perfSearchInput" placeholder="Filter iFlow name..." autocomplete="off">
+            <button type="button" id="btnClearPerfSearch" class="btn-clear-search" title="Clear search">&times;</button>
+          </div>
+        </div>
+
+        <!-- Table with Sorting on Duration/Processing Time Fields (Point 4) -->
+        <div class="table-responsive">
+          <table class="sap-table" id="slowestTable">
+            <thead>
+              <tr>
+                <th class="sortable" data-sort="rank" style="width: 70px;">Rank <span class="sort-icon">⇅</span></th>
+                <th class="sortable" data-sort="name">iFlow / Interface Name <span class="sort-icon">⇅</span></th>
+                <th class="sortable sorted-desc" data-sort="avg" title="Click to sort by Average Processing Duration">Average Runtime <span class="sort-icon">▼</span></th>
+                <th class="sortable" data-sort="max" title="Click to sort by Peak Max Latency">Max Runtime <span class="sort-icon">⇅</span></th>
+                <th class="sortable" data-sort="volume" title="Click to sort by Message Volume">Total Messages <span class="sort-icon">⇅</span></th>
+                <th class="sortable" data-sort="failed" title="Click to sort by Failure Count">Failed Messages <span class="sort-icon">⇅</span></th>
+                <th class="sortable" data-sort="risk">Bottleneck Diagnosis <span class="sort-icon">⇅</span></th>
+              </tr>
+            </thead>
+            <tbody id="slowestTableBody">
+              <tr>
+                <td colspan="7" class="sap-table-loading">Analyzing runtime durations from Message Processing Logs...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- Dashboard Footer -->
+    <footer class="sap-app-footer" id="appFooter">
+      <div class="footer-left"></div>
+      <div class="footer-center">
+        <span class="footer-copyright">&copy; 2026 Prem Sai Daggolu</span>
+      </div>
+      <div class="footer-right">
+        <a href="https://www.linkedin.com/in/premsaidaggolu/" target="_blank" rel="noopener noreferrer" class="footer-linkedin-link" title="Prem Sai Daggolu on LinkedIn">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" class="linkedin-svg" aria-hidden="true">
+            <path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.46 10.9v8.37H9.2V10.9H6.46M7.83 6.64a1.66 1.66 0 0 0-1.66 1.66 1.66 1.66 0 0 0 1.66 1.66 1.66 1.66 0 0 0 1.66-1.66 1.66 1.66 0 0 0-1.66-1.66z"/>
+          </svg>
+          <span>LinkedIn</span>
+        </a>
+      </div>
+    </footer>
+  </main>
+
+  
+  <!-- Runtime Error Details Modal (Opened by Details button in Deployed Artifacts & Message Failures) -->
+  <div class="sap-modal-backdrop" id="errorDetailModal">
+    <div class="sap-modal" style="max-width: 680px; width: 90%;">
+      <div class="sap-modal-header">
+        <h2 style="display: flex; align-items: center; gap: 8px; color: var(--sap-negative); font-size: 16px;">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="8" x2="12" y2="12"></line>
+            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+          </svg>
+          <span id="errorModalTitle">Artifact Error Information</span>
+        </h2>
+        <button class="sap-modal-close" id="btnCloseErrorModal">&times;</button>
+      </div>
+      <div class="sap-modal-body">
+        <div style="margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; gap: 10px;">
+          <span style="font-size: 11.5px; color: #6a6d70; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" id="errorModalSubtitle">Failure Diagnostics & Exception Details</span>
+          <button type="button" class="sap-btn-secondary sap-btn-sm" id="btnCopyErrorText" title="Copy raw error text to clipboard">
+            <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 4px; vertical-align: -1px;">
+              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+            </svg>
+            Copy Error
+          </button>
+        </div>
+        <pre class="sap-error-code-block" id="errorModalContent">Loading error details...</pre>
+      </div>
+      <div class="sap-modal-footer">
+        <button class="sap-btn-primary" id="btnDoneErrorModal">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Hourly Traffic Distribution Modal (Opened by Peak Load Window Tile) -->
+  <div class="sap-modal-backdrop" id="hourlyModal">
+    <div class="sap-modal">
+      <div class="sap-modal-header">
+        <h2>24-Hour Message Traffic Distribution</h2>
+        <button class="sap-modal-close" id="btnCloseHourlyModal">&times;</button>
+      </div>
+      <div class="sap-modal-body">
+        <p class="modal-desc" id="hourlyModalDesc">Hourly message throughput across the tenant runtime:</p>
+        <div class="hourly-chart-container" id="hourlyChartContainer">
+          <!-- Rendered dynamically by JS -->
+        </div>
+      </div>
+      <div class="sap-modal-footer">
+        <button class="sap-btn-primary" id="btnDoneHourlyModal">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="dashboard.js"></script>
+</body>
+</html>

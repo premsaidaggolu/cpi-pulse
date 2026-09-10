@@ -1,0 +1,11 @@
+﻿{
+  "name": "cpi-pulse",
+  "version": "1.0.0",
+  "description": "Enterprise performance analytics and live integration health cockpit for SAP Cloud Integration.",
+  "author": "Prem Sai Daggolu",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/premsaidaggolu/cpi-pulse.git"
+  }
+}
