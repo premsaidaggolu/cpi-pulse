@@ -28,14 +28,16 @@
   "host_permissions": [
     "*://*.hana.ondemand.com/*",
     "*://*.cloud.sap/*",
-    "*://*.btp.sap/*"
+    "*://*.btp.sap/*",
+    "*://*.sap.com/*"
   ],
   "content_scripts": [
     {
       "matches": [
         "*://*.hana.ondemand.com/*",
         "*://*.cloud.sap/*",
-        "*://*.btp.sap/*"
+        "*://*.btp.sap/*",
+        "*://*.sap.com/*"
       ],
       "js": [
         "content/content.js"
@@ -55,7 +57,8 @@
       "matches": [
         "*://*.hana.ondemand.com/*",
         "*://*.cloud.sap/*",
-        "*://*.btp.sap/*"
+        "*://*.btp.sap/*",
+        "*://*.sap.com/*"
       ]
     }
   ]

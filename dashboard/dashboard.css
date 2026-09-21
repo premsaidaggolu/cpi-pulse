@@ -640,6 +640,37 @@ body {
   border: 1px solid rgba(217, 119, 6, 0.2);
 }
 
+.status-pill.info {
+  background: rgba(0, 112, 242, 0.12);
+  color: var(--sap-brand-blue);
+  border: 1px solid rgba(0, 112, 242, 0.25);
+}
+
+.status-pill.neutral {
+  background: rgba(106, 109, 112, 0.12);
+  color: #6a6d70;
+  border: 1px solid rgba(106, 109, 112, 0.25);
+}
+
+.status-pill.draft,
+.status-pill.not-deployed {
+  background: rgba(106, 109, 112, 0.15);
+  color: #5c6066;
+  border: 1px dashed rgba(106, 109, 112, 0.45);
+}
+
+.sap-version-tag {
+  display: inline-block;
+  padding: 1px 6px;
+  background: rgba(0, 112, 242, 0.08);
+  color: var(--sap-brand-blue, #0070f2);
+  border: 1px solid rgba(0, 112, 242, 0.25);
+  border-radius: 4px;
+  font-size: 11px;
+  font-family: monospace;
+  font-weight: 600;
+}
+
 .risk-tag {
   font-size: 10px;
   font-weight: 700;
@@ -1201,6 +1232,36 @@ body.dark-theme .status-pill.stopped,
   background: rgba(252, 196, 25, 0.18);
   color: #fcc419;
   border-color: rgba(252, 196, 25, 0.35);
+}
+
+body.dark-theme .status-pill.info,
+[data-theme="dark"] .status-pill.info {
+  background: rgba(77, 171, 247, 0.18);
+  color: #74c0fc;
+  border-color: rgba(77, 171, 247, 0.35);
+}
+
+body.dark-theme .status-pill.neutral,
+[data-theme="dark"] .status-pill.neutral {
+  background: rgba(160, 166, 173, 0.18);
+  color: #a0a6ad;
+  border-color: rgba(160, 166, 173, 0.35);
+}
+
+body.dark-theme .status-pill.draft,
+[data-theme="dark"] .status-pill.draft,
+body.dark-theme .status-pill.not-deployed,
+[data-theme="dark"] .status-pill.not-deployed {
+  background: rgba(160, 166, 173, 0.15);
+  color: #a0a6ad;
+  border: 1px dashed rgba(160, 166, 173, 0.45);
+}
+
+body.dark-theme .sap-version-tag,
+[data-theme="dark"] .sap-version-tag {
+  background: rgba(0, 112, 242, 0.22);
+  color: #74c0fc;
+  border-color: rgba(116, 192, 252, 0.35);
 }
 
 body.dark-theme .risk-tag.high,
@@ -1979,29 +2040,6 @@ body.dark-theme .sap-chip.active,
 }
 
 
-/* Delete JMS Queue Action Button */
-.btn-delete-queue {
-  background: transparent;
-  border: none;
-  color: var(--sap-negative);
-  cursor: pointer;
-  padding: 4px;
-  border-radius: 4px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.15s ease;
-}
-
-.btn-delete-queue:hover {
-  background: rgba(187, 0, 0, 0.12);
-  transform: scale(1.08);
-}
-
-body.dark-theme .btn-delete-queue:hover,
-[data-theme="dark"] .btn-delete-queue:hover {
-  background: rgba(255, 136, 136, 0.18);
-}
 
 /* Inline Spinner for Async Actions */
 .sap-spinner-sm {
@@ -2136,7 +2174,14 @@ body.dark-theme .perf-kpi-tile:hover .sap-tile-subtext,
   color: #74c0fc;
 }
 
-/* Customizable Bottleneck Threshold Pill inside Tile 4 */
+/* Customizable Bottleneck & Failure Threshold Pills inside Tile 4 */
+.perf-threshold-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
 .perf-threshold-pill {
   display: inline-flex;
   align-items: center;
@@ -2157,8 +2202,20 @@ body.dark-theme .perf-threshold-pill,
   color: #94a3b8;
 }
 
+.threshold-pill-label {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--sap-text-secondary, #6a6d70);
+  text-transform: uppercase;
+}
+
+body.dark-theme .threshold-pill-label,
+[data-theme="dark"] .threshold-pill-label {
+  color: #94a3b8;
+}
+
 .threshold-pill-input {
-  width: 42px;
+  width: 38px;
   padding: 1px 2px;
   border: 1px solid transparent;
   background: transparent;
@@ -2168,11 +2225,34 @@ body.dark-theme .perf-threshold-pill,
   text-align: right;
   border-radius: 3px;
   outline: none;
+  -moz-appearance: textfield;
+}
+
+.threshold-pill-input.failure-threshold-input {
+  width: 28px;
+  text-align: center;
+}
+
+.threshold-pill-input.expiry-threshold-input {
+  width: 32px;
+  text-align: center;
+  color: var(--sap-critical, #e9730c);
+}
+
+.threshold-pill-input::-webkit-outer-spin-button,
+.threshold-pill-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
 }
 
 body.dark-theme .threshold-pill-input,
 [data-theme="dark"] .threshold-pill-input {
   color: #ff8787;
+}
+
+body.dark-theme .threshold-pill-input.expiry-threshold-input,
+[data-theme="dark"] .threshold-pill-input.expiry-threshold-input {
+  color: #fbbf24;
 }
 
 .threshold-pill-input:focus {
@@ -2308,6 +2388,30 @@ body.dark-theme .sap-pagination-btn:disabled,
 .footer-left {
   flex: 1;
   min-width: 80px;
+  display: flex;
+  align-items: center;
+}
+
+.footer-version {
+  display: inline-flex;
+  align-items: center;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--sap-text-secondary, #6a6d70);
+  background: var(--sap-bg-hover, rgba(0, 0, 0, 0.04));
+  border: 1px solid var(--sap-card-border, #d1d5db);
+  padding: 2px 8px;
+  border-radius: 6px;
+  letter-spacing: 0.3px;
+  user-select: none;
+  font-variant-numeric: tabular-nums;
+  transition: all 0.2s ease;
+}
+
+.footer-version:hover {
+  background: var(--sap-bg-hover, rgba(0, 0, 0, 0.08));
+  border-color: var(--sap-brand-blue, #0070f2);
+  color: var(--sap-brand-blue, #0070f2);
 }
 
 .footer-center {
@@ -2378,4 +2482,75 @@ body.dark-theme .footer-linkedin-link:hover,
   background: rgba(112, 181, 249, 0.22);
   color: #93cbfb;
 }
+
+body.dark-theme .footer-version,
+[data-theme="dark"] .footer-version {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.14);
+  color: #94a3b8;
+}
+
+body.dark-theme .footer-version:hover,
+[data-theme="dark"] .footer-version:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: #60a5fa;
+  color: #93cbfb;
+}
+
+/* ==========================================================================
+   CSV Export Button (SAP Fiori Horizon Style)
+   ========================================================================== */
+.sap-btn-csv {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--sap-card-bg, #ffffff);
+  border: 1px solid var(--sap-card-border, #d1d5db);
+  border-radius: 6px;
+  padding: 5px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--sap-text-primary, #1e293b);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-family: inherit;
+  line-height: 1.2;
+}
+
+.sap-btn-csv:hover:not(:disabled) {
+  background: var(--sap-bg-hover, #f0f4f9);
+  border-color: var(--sap-brand-blue, #0070f2);
+  color: var(--sap-brand-blue, #0070f2);
+  box-shadow: 0 1px 3px rgba(0, 112, 242, 0.15);
+}
+
+.sap-btn-csv:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.sap-btn-csv:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.sap-btn-csv svg {
+  flex-shrink: 0;
+  stroke: currentColor;
+}
+
+body.dark-theme .sap-btn-csv,
+[data-theme="dark"] .sap-btn-csv {
+  background: #1f2835;
+  border-color: #374659;
+  color: #e2e8f0;
+}
+
+body.dark-theme .sap-btn-csv:hover:not(:disabled),
+[data-theme="dark"] .sap-btn-csv:hover:not(:disabled) {
+  background: #283547;
+  border-color: #4dabf7;
+  color: #74c0fc;
+  box-shadow: 0 1px 4px rgba(77, 171, 247, 0.2);
+}
+
 

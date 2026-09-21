@@ -45,10 +45,10 @@
         </select>
       </div>
 
-      <!-- User Avatar with Initials & Profile Details Popover (Part 3: Prem Sai Daggolu -> PD) -->
+      <!-- User Avatar with Initials & Profile Details Popover -->
       <div class="sap-avatar-wrapper">
-        <div class="sap-user-avatar clickable" id="userAvatarBtn" title="User Profile (Prem Sai Daggolu) - Click to view details" role="button" tabindex="0">
-          <span id="userAvatarInitials">PD</span>
+        <div class="sap-user-avatar clickable" id="userAvatarBtn" title="User Profile - Click to view details" role="button" tabindex="0">
+          <span id="userAvatarInitials">IU</span>
         </div>
 
         <!-- Profile Details Popover Modal -->
@@ -59,27 +59,27 @@
           </div>
           <div class="profile-popover-body">
             <div class="profile-user-summary">
-              <div class="profile-avatar-large" id="profileAvatarLarge">PD</div>
+              <div class="profile-avatar-large" id="profileAvatarLarge">IU</div>
               <div class="profile-info">
-                <h3 class="profile-name" id="profileDisplayName">Prem Sai Daggolu</h3>
-                <p class="profile-email" id="profileDisplayEmail">prem.sai.daggolu@sap.com</p>
-                <span class="profile-role-pill" id="profileDisplayRole">Integration Developer</span>
+                <h3 class="profile-name" id="profileDisplayName">Integration User</h3>
+                <p class="profile-email" id="profileDisplayEmail">(No email set)</p>
+                <span class="profile-role-pill" id="profileDisplayRole">Integration Specialist</span>
               </div>
             </div>
 
-            <!-- Profile Manual Edit Form / Placeholders (Item 6) -->
+            <!-- Profile Manual Edit Form / Placeholders -->
             <div class="profile-edit-box" id="profileEditBox" style="display: block; margin-top: 14px;">
               <div class="profile-form-group">
                 <label for="inputProfileName">Full Name:</label>
-                <input type="text" id="inputProfileName" class="sap-input" value="Prem Sai Daggolu" placeholder="Enter full name...">
+                <input type="text" id="inputProfileName" class="sap-input" value="" placeholder="e.g. Alex Morgan">
               </div>
               <div class="profile-form-group" style="margin-top: 8px;">
                 <label for="inputProfileEmail">Email Address:</label>
-                <input type="email" id="inputProfileEmail" class="sap-input" value="prem.sai.daggolu@sap.com" placeholder="Enter email address...">
+                <input type="email" id="inputProfileEmail" class="sap-input" value="" placeholder="e.g. alex.morgan@company.com">
               </div>
               <div class="profile-form-group" style="margin-top: 8px;">
                 <label for="inputProfileRole">Role / Title:</label>
-                <input type="text" id="inputProfileRole" class="sap-input" value="Integration Developer" placeholder="Enter role...">
+                <input type="text" id="inputProfileRole" class="sap-input" value="" placeholder="e.g. Integration Specialist">
               </div>
               <div class="profile-edit-btn-row" style="margin-top: 12px; display: flex; gap: 8px;">
                 <button type="button" class="sap-btn-primary sap-btn-sm" id="btnSaveProfile">Save Profile</button>
@@ -189,24 +189,34 @@
           </div>
         </div>
 
-        <!-- Capability 2: Message Failures -->
-        <div class="sap-tile" data-capability="error-sentinel" id="tileErrorSentinel" title="Click to view failing interfaces & execution errors">
+        <!-- Capability 2: Message Processing Logs -->
+        <div class="sap-tile" data-capability="error-sentinel" id="tileErrorSentinel" title="Click to view message processing logs & interface executions">
           <div class="sap-tile-top">
-            <span class="sap-tile-highlight-title">Message Failures</span>
-            <span class="sap-tile-timeframe">Failed Executions</span>
+            <span class="sap-tile-highlight-title">Message Processing Logs</span>
+            <span class="sap-tile-timeframe">Executions</span>
           </div>
           <div class="sap-tile-kpi negative" id="kpiErrorSentinel">--</div>
           <div class="sap-tile-bottom">
-            <span class="sap-tile-label">Critical Failures</span>
-            <span class="sap-tile-subtext">Needs Attention</span>
+            <span class="sap-tile-label">Total Messages</span>
+            <span class="sap-tile-subtext" id="kpiErrorSentinelBreakdown">Failed / Completed</span>
           </div>
         </div>
 
         <!-- Capability 3: Keystore Guardian (Point 1: Shows total certs + expiring) -->
         <div class="sap-tile" data-capability="cert-guardian" id="tileKeystoreGuardian" title="Click to inspect all keystore certificates & validity">
           <div class="sap-tile-top">
-            <span class="sap-tile-highlight-title">Keystore Guardian</span>
-            <span class="sap-tile-timeframe">Manage Keystore</span>
+            <div style="display: flex; justify-content: space-between; align-items: center; gap: 4px; flex-wrap: wrap;">
+              <span class="sap-tile-highlight-title">Keystore Guardian</span>
+              <div class="perf-threshold-group" onclick="event.stopPropagation();">
+                <div class="perf-threshold-pill" title="Customize certificate expiration threshold (in days)">
+                  <span class="threshold-pill-label">Exp</span>
+                  <span>&le;</span>
+                  <input type="number" id="inputKeystoreExpiryDays" min="1" max="730" step="5" value="90" class="threshold-pill-input expiry-threshold-input" aria-label="Keystore expiration threshold in days">
+                  <span>d</span>
+                </div>
+              </div>
+            </div>
+            <span class="sap-tile-timeframe" id="lblKeystoreTimeframe">Exp &le; 90d</span>
           </div>
           <div class="sap-tile-kpi positive" id="kpiKeystoreGuardian">--</div>
           <div class="sap-tile-bottom">
@@ -235,14 +245,20 @@
           <div class="sap-detail-header-left">
             <span class="sap-detail-title">
               <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-              <span id="detailTableTitle">Deployed Integration Artifacts</span>
+              <span id="detailTableTitle">Integration Artifacts Overview</span>
               <span class="sap-item-count-badge" id="detailTableCount">0</span>
             </span>
           </div>
 
           <div class="sap-detail-header-right">
-            <!-- Accurate Dynamic API Source Tag (Point 3) -->
-            
+            <button type="button" class="sap-btn-action sap-btn-csv" id="btnExportDetailCsv" title="Download all filtered records as CSV">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="7 10 12 15 17 10"></polyline>
+                <line x1="12" y1="15" x2="12" y2="3"></line>
+              </svg>
+              <span>Download CSV</span>
+            </button>
           </div>
         </div>
 
@@ -353,17 +369,25 @@
         </div>
 
         <!-- Tile 4: Bottleneck Alerts -->
-        <div class="sap-tile perf-kpi-tile" data-perf-action="filter-bottlenecks" id="tileSlowestAlert" title="Click to filter leaderboard to Bottlenecks Only (&ge; 2.0s)">
+        <div class="sap-tile perf-kpi-tile" data-perf-action="filter-bottlenecks" id="tileSlowestAlert" title="Click to filter leaderboard to Bottlenecks (Avg &ge; 2.0s or Failures &ge; 1)">
           <div class="sap-tile-top">
-            <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div style="display: flex; justify-content: space-between; align-items: center; gap: 4px; flex-wrap: wrap;">
               <span class="sap-tile-highlight-title">Bottlenecks</span>
-              <div class="perf-threshold-pill" title="Customize bottleneck latency threshold (in seconds)" onclick="event.stopPropagation();">
-                <span>&ge;</span>
-                <input type="number" id="inputBottleneckThreshold" min="0.1" max="60" step="0.5" value="2.0" class="threshold-pill-input" aria-label="Bottleneck threshold in seconds">
-                <span>s</span>
+              <div class="perf-threshold-group" onclick="event.stopPropagation();">
+                <div class="perf-threshold-pill" title="Customize bottleneck average runtime threshold (in seconds)">
+                  <span class="threshold-pill-label">Avg</span>
+                  <span>&ge;</span>
+                  <input type="number" id="inputBottleneckThreshold" min="0.1" max="60" step="0.5" value="2.0" class="threshold-pill-input" aria-label="Bottleneck latency threshold in seconds">
+                  <span>s</span>
+                </div>
+                <div class="perf-threshold-pill" title="Customize failure count threshold">
+                  <span class="threshold-pill-label">Fail</span>
+                  <span>&ge;</span>
+                  <input type="number" id="inputFailureThreshold" min="1" max="999" step="1" value="1" class="threshold-pill-input failure-threshold-input" aria-label="Failure threshold count">
+                </div>
               </div>
             </div>
-            <span class="sap-tile-timeframe" id="lblSlowTimeframe">Latency &ge; 2.0s</span>
+            <span class="sap-tile-timeframe" id="lblSlowTimeframe">Avg &ge; 2.0s &bull; Failures &ge; 1</span>
           </div>
           <div class="sap-tile-kpi negative" id="kpiSlowCount">--</div>
           <div class="sap-tile-bottom">
@@ -385,7 +409,14 @@
           </div>
 
           <div class="sap-detail-header-right">
-            
+            <button type="button" class="sap-btn-action sap-btn-csv" id="btnExportPerfCsv" title="Download all filtered flows as CSV">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="7 10 12 15 17 10"></polyline>
+                <line x1="12" y1="15" x2="12" y2="3"></line>
+              </svg>
+              <span>Download CSV</span>
+            </button>
           </div>
         </div>
 
@@ -393,8 +424,9 @@
         <div class="sap-table-toolbar">
           <div class="sap-filter-chips" id="perfFilterChips">
             <button class="sap-chip active" data-perf-filter="all">All Flows</button>
-            <button class="sap-chip" data-perf-filter="bottlenecks" id="chipBottlenecks">Bottlenecks (&ge; 2.0s)</button>
-            <button class="sap-chip" data-perf-filter="failures">With Failures</button>
+            <button class="sap-chip" data-perf-filter="bottlenecks" id="chipBottlenecks">All Bottlenecks</button>
+            <button class="sap-chip" data-perf-filter="latency" id="chipLatency">Latency (&ge; 2.0s)</button>
+            <button class="sap-chip" data-perf-filter="failures" id="chipFailures">Failures (&ge; 1)</button>
           </div>
 
           <div class="sap-search-box">
@@ -433,7 +465,9 @@
 
     <!-- Dashboard Footer -->
     <footer class="sap-app-footer" id="appFooter">
-      <div class="footer-left"></div>
+      <div class="footer-left">
+        <span class="footer-version" id="footerAppVersion" title="CPI Pulse Version">v1.0.0</span>
+      </div>
       <div class="footer-center">
         <span class="footer-copyright">&copy; 2026 Prem Sai Daggolu</span>
       </div>
@@ -449,7 +483,7 @@
   </main>
 
   
-  <!-- Runtime Error Details Modal (Opened by Details button in Deployed Artifacts & Message Failures) -->
+  <!-- Runtime Error Details Modal (Opened by Details button in Deployed Artifacts & Message Processing Logs) -->
   <div class="sap-modal-backdrop" id="errorDetailModal">
     <div class="sap-modal" style="max-width: 680px; width: 90%;">
       <div class="sap-modal-header">

@@ -47,6 +47,17 @@ body {
   color: #1d2d3e;
 }
 
+.popup-version {
+  font-size: 10px;
+  font-weight: 600;
+  color: #6a6d70;
+  background: rgba(0, 0, 0, 0.05);
+  border: 1px solid #d1d5db;
+  padding: 1px 5px;
+  border-radius: 4px;
+  letter-spacing: 0.2px;
+}
+
 .badge-live {
   font-size: 10px;
   font-weight: 700;
@@ -55,6 +66,37 @@ body {
   padding: 2px 6px;
   border-radius: 10px;
   text-transform: uppercase;
+}
+
+.popup-tenant-status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 8px;
+  background: #f0f3f6;
+  border-radius: 4px;
+  font-size: 11px;
+  color: #555b63;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.popup-tenant-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.popup-tenant-dot.green { background: #107e3e; }
+.popup-tenant-dot.amber { background: #e9730c; }
+.popup-tenant-dot.red { background: #bb0000; }
+
+.popup-tenant-name {
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .summary-kpis {
